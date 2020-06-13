@@ -2,16 +2,26 @@ dist: xenial
 
 language: python
 python:
-  - 3.5
   - 3.6
-  - 3.7
-  - 3.8
+#  - 3.6
+#  - 3.7
+#  - 3.8
 
 env:
   - TEST=API
-  - TEST=E2E LANG="c_lang or python or java or go_lang or javascript or php or haskell or ruby"
-  - TEST=E2E LANG="c_sharp or visual_basic or powershell"
-  - TEST=E2E LANG="r_lang or dart"
+  - TEST=E2E LANG="c_lang"
+  - TEST=E2E LANG="python"
+  - TEST=E2E LANG="java"
+  - TEST=E2E LANG="go_lang"
+  - TEST=E2E LANG="javascript"
+  - TEST=E2E LANG="php"
+  - TEST=E2E LANG="haskell"
+  - TEST=E2E LANG="ruby"
+  - TEST=E2E LANG="c_sharp"
+  - TEST=E2E LANG="visual_basic"
+  - TEST=E2E LANG="powershell"
+  - TEST=E2E LANG="r_lang"
+  - TEST=E2E LANG="dart"
 
 before_install:
   - bash .travis/setup.sh

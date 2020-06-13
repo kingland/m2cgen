@@ -133,7 +133,7 @@ def test_binary_class():
 
 def test_statsmodels_wo_const():
     estimator = utils.StatsmodelsSklearnLikeWrapper(sm.GLS, {})
-    _, __, estimator = utils.get_regression_model_trainer()(estimator)
+    _, __, estimator, ___ = utils.get_regression_model_trainer()(estimator)
 
     assembler = assemblers.StatsmodelsLinearModelAssembler(estimator)
     actual = assembler.assemble()
@@ -205,7 +205,7 @@ def test_statsmodels_w_const():
     estimator = utils.StatsmodelsSklearnLikeWrapper(
         sm.GLS,
         dict(init=dict(fit_intercept=True)))
-    _, __, estimator = utils.get_regression_model_trainer()(estimator)
+    _, __, estimator, ___ = utils.get_regression_model_trainer()(estimator)
 
     assembler = assemblers.StatsmodelsLinearModelAssembler(estimator)
     actual = assembler.assemble()
@@ -300,7 +300,7 @@ def test_statsmodels_processmle():
             np.arange(len(utils.get_regression_model_trainer().y_train) // 3),
             np.ones(3))),
              fit=dict(maxiter=1)))
-    _, __, estimator = utils.get_regression_model_trainer()(estimator)
+    _, __, estimator, ___ = utils.get_regression_model_trainer()(estimator)
 
     assembler = assemblers.ProcessMLEModelAssembler(estimator)
     actual = assembler.assemble()

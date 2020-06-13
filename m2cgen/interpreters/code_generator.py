@@ -1,6 +1,8 @@
 from io import StringIO
 from weakref import finalize
 
+import numpy as np
+
 
 class CodeTemplate:
 
@@ -11,12 +13,17 @@ class CodeTemplate:
         return self.str_template
 
     def __call__(self, *args, **kwargs):
-        # Force calling str() representation
-        # because without it numpy gives the same output
-        # for different float types
+
+        def _is_float(value):
+            return isinstance(value, (float, np.floating))
+
         return self.str_template.format(
-            *[str(i) for i in args],
-            **{k: str(v) for k, v in kwargs.items()})
+            *[np.format_float_positional(
+                  i, unique=True, trim="0") if _is_float(i) else i
+              for i in args],
+            **{k: np.format_float_positional(
+                      v, unique=True, trim="0") if _is_float(v) else v
+               for k, v in kwargs.items()})
 
 
 class BaseCodeGenerator:
