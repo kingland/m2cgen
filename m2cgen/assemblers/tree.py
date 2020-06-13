@@ -1,5 +1,3 @@
-import numpy as np
-
 from m2cgen import ast
 from m2cgen.assemblers import utils
 from m2cgen.assemblers.base import ModelAssembler
@@ -40,8 +38,9 @@ class TreeModelAssembler(ModelAssembler):
     def _assemble_leaf(self, node_id):
         scores = self._tree.value[node_id][0]
         if self._is_vector_output:
-            score_sum = scores.sum() or 1.0
-            outputs = [ast.NumVal(s / score_sum) for s in scores]
+            score_sum = scores.sum()
+            outputs = [ast.NumVal(s / score_sum) if score_sum else ast.NumVal(s)
+                       for s in scores]
             return ast.VectorVal(outputs)
         else:
             assert len(scores) == 1, "Unexpected number of outputs"
@@ -49,11 +48,5 @@ class TreeModelAssembler(ModelAssembler):
 
     def _assemble_cond(self, node_id):
         feature_idx = self._tree.feature[node_id]
-        threshold = self._tree.threshold[node_id]
-
-        # sklearn's trees internally work with float32 numbers, so in order
-        # to have consistent results across all supported languages, we convert
-        # all thresholds into float32.
-        threshold_num_val = ast.NumVal(threshold, dtype=np.float32)
-
+        threshold_num_val = ast.NumVal(self._tree.threshold[node_id])
         return utils.lte(ast.FeatureRef(feature_idx), threshold_num_val)

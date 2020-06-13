@@ -3,8 +3,8 @@ import lightgbm
 import pytest
 import numpy as np
 import xgboost
-import statsmodels.api as sm
-from statsmodels.regression.process_regression import ProcessMLE
+#import statsmodels.api as sm
+#from statsmodels.regression.process_regression import ProcessMLE
 import lightning.classification as light_clf
 import lightning.regression as light_reg
 from sklearn import linear_model, svm
@@ -37,7 +37,7 @@ CLASSIFICATION = pytest.mark.clf
 
 
 # Set of helper functions to make parametrization less verbose.
-def regression(model, test_fraction=0.02):
+def regression(model, test_fraction=0.6):
     return (
         model,
         utils.get_regression_model_trainer(test_fraction),
@@ -45,7 +45,7 @@ def regression(model, test_fraction=0.02):
     )
 
 
-def classification(model, test_fraction=0.02):
+def classification(model, test_fraction=0.6):
     return (
         model,
         utils.get_classification_model_trainer(test_fraction),
@@ -53,7 +53,7 @@ def classification(model, test_fraction=0.02):
     )
 
 
-def classification_binary(model, test_fraction=0.02):
+def classification_binary(model, test_fraction=0.6):
     return (
         model,
         utils.get_binary_classification_model_trainer(test_fraction),
@@ -61,7 +61,7 @@ def classification_binary(model, test_fraction=0.02):
     )
 
 
-def regression_random(model, test_fraction=0.02):
+def regression_random(model, test_fraction=0.6):
     return (
         model,
         utils.get_regression_random_data_model_trainer(test_fraction),
@@ -69,7 +69,7 @@ def regression_random(model, test_fraction=0.02):
     )
 
 
-def classification_random(model, test_fraction=0.02):
+def classification_random(model, test_fraction=0.6):
     return (
         model,
         utils.get_classification_random_data_model_trainer(test_fraction),
@@ -77,7 +77,7 @@ def classification_random(model, test_fraction=0.02):
     )
 
 
-def classification_binary_random(model, test_fraction=0.02):
+def classification_binary_random(model, test_fraction=0.6):
     return (
         model,
         utils.get_classification_binary_random_data_model_trainer(
@@ -86,7 +86,7 @@ def classification_binary_random(model, test_fraction=0.02):
     )
 
 
-def regression_bounded(model, test_fraction=0.02):
+def regression_bounded(model, test_fraction=0.6):
     return (
         model,
         utils.get_bounded_regression_model_trainer(test_fraction),
@@ -191,11 +191,11 @@ STATSMODELS_LINEAR_REGULARIZED_PARAMS = dict(method="elastic_net",
 
         # XGBoost (tree method "hist")
         regression(xgboost.XGBRegressor(**XGBOOST_HIST_PARAMS),
-                   test_fraction=0.2),
+                   test_fraction=0.6),
         classification(xgboost.XGBClassifier(**XGBOOST_HIST_PARAMS),
-                       test_fraction=0.2),
+                       test_fraction=0.6),
         classification_binary(xgboost.XGBClassifier(**XGBOOST_HIST_PARAMS),
-                              test_fraction=0.2),
+                              test_fraction=0.6),
 
         # XGBoost (LINEAR)
         regression(xgboost.XGBRegressor(**XGBOOST_PARAMS_LINEAR)),
@@ -295,122 +295,122 @@ STATSMODELS_LINEAR_REGULARIZED_PARAMS = dict(method="elastic_net",
         regression(linear_model.TheilSenRegressor(random_state=RANDOM_SEED)),
 
         # Statsmodels Linear Regression
-        classification_binary(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(fit_constrained=dict(constraints=(np.eye(
-                     utils.get_binary_classification_model_trainer()
-                     .X_train.shape[-1])[0], [1]))))),
-        classification_binary(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
-        classification_binary(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                family=sm.families.Binomial(
-                    sm.families.links.cloglog())),
-                 fit=dict(maxiter=2)))),
-        classification_binary(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                family=sm.families.Binomial(
-                    sm.families.links.logit())),
-                 fit=dict(maxiter=2)))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                fit_intercept=True, family=sm.families.Gaussian(
-                    sm.families.links.identity()))))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                 fit_intercept=True, family=sm.families.Gaussian(
-                     sm.families.links.inverse_power()))))),
-        regression_bounded(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                 family=sm.families.InverseGaussian(
-                     sm.families.links.inverse_squared()))))),
-        classification_binary(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                fit_intercept=True, family=sm.families.NegativeBinomial(
-                    sm.families.links.nbinom())),
-                 fit=dict(maxiter=2)))),
-        classification_binary(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                fit_intercept=True, family=sm.families.Poisson(
-                    sm.families.links.log())),
-                 fit=dict(maxiter=2)))),
-        classification_binary(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                fit_intercept=True, family=sm.families.Poisson(
-                    sm.families.links.sqrt())),
-                 fit=dict(maxiter=2)))),
-        regression_bounded(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                 family=sm.families.Tweedie(
-                     sm.families.links.Power(-3)))))),
-        regression_bounded(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLM,
-            dict(init=dict(
-                 fit_intercept=True, family=sm.families.Tweedie(
-                     sm.families.links.Power(2)))))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLS,
-            dict(init=dict(sigma=np.eye(
-                len(utils.get_regression_model_trainer().y_train)) + 1)))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLS,
-            dict(init=dict(sigma=np.eye(
-                len(utils.get_regression_model_trainer().y_train)) + 1),
-                 fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLSAR,
-            dict(init=dict(fit_intercept=True, rho=3)))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLSAR,
-            dict(iterative_fit=dict(maxiter=2)))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.GLSAR,
-            dict(fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.OLS,
-            dict(init=dict(fit_intercept=True)))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.OLS,
-            dict(fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            ProcessMLE,
-            dict(init=dict(exog_scale=np.ones(
-                (len(utils.get_regression_model_trainer().y_train), 2)),
-                           exog_smooth=np.ones(
-                (len(utils.get_regression_model_trainer().y_train), 2)),
-                           exog_noise=np.ones(
-                (len(utils.get_regression_model_trainer().y_train), 2)),
-                           time=np.kron(
-                np.ones(
-                    len(utils.get_regression_model_trainer().y_train) // 3),
-                np.arange(3)),
-                           groups=np.kron(
-                np.arange(
-                    len(utils.get_regression_model_trainer().y_train) // 3),
-                np.ones(3))),
-                 fit=dict(maxiter=2)))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.QuantReg,
-            dict(init=dict(fit_intercept=True)))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.WLS,
-            dict(init=dict(fit_intercept=True, weights=np.arange(
-                len(utils.get_regression_model_trainer().y_train)))))),
-        regression(utils.StatsmodelsSklearnLikeWrapper(
-            sm.WLS,
-            dict(init=dict(fit_intercept=True, weights=np.arange(
-                len(utils.get_regression_model_trainer().y_train))),
-                 fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
+        # classification_binary(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(fit_constrained=dict(constraints=(np.eye(
+        #              utils.get_binary_classification_model_trainer()
+        #              .X_train.shape[-1])[0], [1]))))),
+        # classification_binary(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
+        # classification_binary(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #         family=sm.families.Binomial(
+        #             sm.families.links.cloglog())),
+        #          fit=dict(maxiter=2)))),
+        # classification_binary(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #         family=sm.families.Binomial(
+        #             sm.families.links.logit())),
+        #          fit=dict(maxiter=2)))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #         fit_intercept=True, family=sm.families.Gaussian(
+        #             sm.families.links.identity()))))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #          fit_intercept=True, family=sm.families.Gaussian(
+        #              sm.families.links.inverse_power()))))),
+        # regression_bounded(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #          family=sm.families.InverseGaussian(
+        #              sm.families.links.inverse_squared()))))),
+        # classification_binary(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #         fit_intercept=True, family=sm.families.NegativeBinomial(
+        #             sm.families.links.nbinom())),
+        #          fit=dict(maxiter=2)))),
+        # classification_binary(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #         fit_intercept=True, family=sm.families.Poisson(
+        #             sm.families.links.log())),
+        #          fit=dict(maxiter=2)))),
+        # classification_binary(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #         fit_intercept=True, family=sm.families.Poisson(
+        #             sm.families.links.sqrt())),
+        #          fit=dict(maxiter=2)))),
+        # regression_bounded(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #          family=sm.families.Tweedie(
+        #              sm.families.links.Power(-3)))))),
+        # regression_bounded(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLM,
+        #     dict(init=dict(
+        #          fit_intercept=True, family=sm.families.Tweedie(
+        #              sm.families.links.Power(2)))))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLS,
+        #     dict(init=dict(sigma=np.eye(
+        #         len(utils.get_regression_model_trainer().y_train)) + 1)))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLS,
+        #     dict(init=dict(sigma=np.eye(
+        #         len(utils.get_regression_model_trainer().y_train)) + 1),
+        #          fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLSAR,
+        #     dict(init=dict(fit_intercept=True, rho=3)))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLSAR,
+        #     dict(iterative_fit=dict(maxiter=2)))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.GLSAR,
+        #     dict(fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.OLS,
+        #     dict(init=dict(fit_intercept=True)))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.OLS,
+        #     dict(fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     ProcessMLE,
+        #     dict(init=dict(exog_scale=np.ones(
+        #         (len(utils.get_regression_model_trainer().y_train), 2)),
+        #                    exog_smooth=np.ones(
+        #         (len(utils.get_regression_model_trainer().y_train), 2)),
+        #                    exog_noise=np.ones(
+        #         (len(utils.get_regression_model_trainer().y_train), 2)),
+        #                    time=np.kron(
+        #         np.ones(
+        #             len(utils.get_regression_model_trainer().y_train) // 3),
+        #         np.arange(3)),
+        #                    groups=np.kron(
+        #         np.arange(
+        #             len(utils.get_regression_model_trainer().y_train) // 3),
+        #         np.ones(3))),
+        #          fit=dict(maxiter=2)))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.QuantReg,
+        #     dict(init=dict(fit_intercept=True)))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.WLS,
+        #     dict(init=dict(fit_intercept=True, weights=np.arange(
+        #         len(utils.get_regression_model_trainer().y_train)))))),
+        # regression(utils.StatsmodelsSklearnLikeWrapper(
+        #     sm.WLS,
+        #     dict(init=dict(fit_intercept=True, weights=np.arange(
+        #         len(utils.get_regression_model_trainer().y_train))),
+        #          fit_regularized=STATSMODELS_LINEAR_REGULARIZED_PARAMS))),
 
         # Lightning Linear Regression
         regression(light_reg.AdaGradRegressor(random_state=RANDOM_SEED)),
@@ -515,7 +515,8 @@ def test_e2e(estimator, executor_cls, model_trainer,
              is_fast, global_tmp_dir):
     sys.setrecursionlimit(RECURSION_LIMIT)
 
-    X_test, y_pred_true, fitted_estimator = model_trainer(estimator)
+    X_test, y_pred_true, fitted_estimator, dtype = model_trainer(estimator)
+    X_test = X_test.astype(dtype, copy=False)
     executor = executor_cls(fitted_estimator)
 
     idxs_to_test = [0] if is_fast else range(len(X_test))
@@ -524,7 +525,8 @@ def test_e2e(estimator, executor_cls, model_trainer,
     with executor.prepare_then_cleanup():
         for idx in idxs_to_test:
             y_pred_executed = executor.predict(X_test[idx])
+            y_pred_executed = np.array(y_pred_executed, dtype=y_pred_true.dtype, copy=False)
             print("expected={}, actual={}".format(y_pred_true[idx],
                                                   y_pred_executed))
-            res = np.isclose(y_pred_true[idx], y_pred_executed, atol=ATOL)
-            assert res if isinstance(res, bool) else res.all()
+            np.testing.assert_allclose(
+                y_pred_true[idx], y_pred_executed, atol=ATOL)
