@@ -516,7 +516,7 @@ def test_e2e(estimator, executor_cls, model_trainer,
     sys.setrecursionlimit(RECURSION_LIMIT)
 
     X_test, y_pred_true, fitted_estimator, dtype = model_trainer(estimator)
-    X_test = X_test.astype(dtype, copy=False)
+#    X_test = X_test.astype(dtype, copy=False)
     executor = executor_cls(fitted_estimator)
 
     idxs_to_test = [0] if is_fast else range(len(X_test))
@@ -525,7 +525,7 @@ def test_e2e(estimator, executor_cls, model_trainer,
     with executor.prepare_then_cleanup():
         for idx in idxs_to_test:
             y_pred_executed = executor.predict(X_test[idx])
-            y_pred_executed = np.array(y_pred_executed, dtype=y_pred_true.dtype, copy=False)
+#            y_pred_executed = np.array(y_pred_executed, dtype=y_pred_true.dtype, copy=False)
             print("expected={}, actual={}".format(y_pred_true[idx],
                                                   y_pred_executed))
             np.testing.assert_allclose(

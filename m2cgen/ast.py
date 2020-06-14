@@ -45,8 +45,10 @@ class NumExpr(Expr):
 
 
 class NumVal(NumExpr):
-    def __init__(self, value, dtype=np.float64):
-        self.value = dtype(value)
+    def __init__(self, value, dtype=None):
+        if dtype:
+            value = dtype(value)
+        self.value = value
 
     def __str__(self):
         return "NumVal(" + str(self.value) + ")"

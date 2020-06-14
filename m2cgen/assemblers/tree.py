@@ -48,5 +48,5 @@ class TreeModelAssembler(ModelAssembler):
 
     def _assemble_cond(self, node_id):
         feature_idx = self._tree.feature[node_id]
-        threshold_num_val = ast.NumVal(self._tree.threshold[node_id])
+        threshold_num_val = ast.NumVal(self._tree.threshold[node_id], dtype=np.float32)
         return utils.lte(ast.FeatureRef(feature_idx), threshold_num_val)
